@@ -26,9 +26,9 @@ import mimetypes
 import os
 import time
 
-import httplib2
 import six
 from six.moves.urllib.parse import quote
+import urllib3
 
 from google.cloud._helpers import _rfc3339_to_datetime
 from google.cloud._helpers import _to_bytes
@@ -515,7 +515,7 @@ class Blob(_PropertyMixin):
         info = http_response.info
         status = int(info['status'])
         if not 200 <= status < 300:
-            faux_response = httplib2.Response({'status': status})
+            faux_response = urllib3.response.HTTPResponse(status=status)
             raise make_exception(faux_response, http_response.content,
                                  error_info=request.url)
 

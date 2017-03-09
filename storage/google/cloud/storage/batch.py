@@ -23,8 +23,8 @@ from email.parser import Parser
 import io
 import json
 
-import httplib2
 import six
+import urllib3
 
 from google.cloud.exceptions import make_exception
 from google.cloud.storage._http import Connection
@@ -221,12 +221,11 @@ class Batch(Connection):
         for target_object, sub_response in zip(self._target_objects,
                                                responses):
             resp_headers, sub_payload = sub_response
-            if not 200 <= resp_headers.status < 300:
+            if not 200 <= int(resp_headers.get('status')) < 300:
                 exception_args = exception_args or (resp_headers,
                                                     sub_payload)
             elif target_object is not None:
                 target_object._properties = sub_payload
-
         if exception_args is not None:
             raise make_exception(*exception_args)
 
@@ -243,6 +242,7 @@ class Batch(Connection):
         # Use the private ``_base_connection`` rather than the property
         # ``_connection``, since the property may be this
         # current batch.
+        # response, content = self._client._base_connection._make_request(
         response, content = self._client._base_connection._make_request(
             'POST', url, data=body, headers=headers)
         responses = list(_unpack_batch_response(response, content))
@@ -317,7 +317,7 @@ def _unpack_batch_response(response, content):
         ctype = sub_message['Content-Type']
         msg_headers = dict(sub_message._headers)
         msg_headers['status'] = status
-        headers = httplib2.Response(msg_headers)
+        headers = urllib3.response.HTTPResponse(headers=msg_headers).headers
         if ctype and ctype.startswith('application/json'):
             payload = json.loads(payload)
         yield headers, payload

@@ -29,7 +29,6 @@ from threading import local as Local
 import google.auth
 from google.protobuf import duration_pb2
 from google.protobuf import timestamp_pb2
-import google_auth_httplib2
 
 try:
     import grpc
@@ -37,9 +36,9 @@ try:
 except ImportError:  # pragma: NO COVER
     grpc = None
 
-import httplib2
 import six
 from six.moves import http_client
+import urllib3
 
 
 _NOW = datetime.datetime.utcnow  # To be replaced by tests.
@@ -535,7 +534,8 @@ def make_secure_channel(credentials, user_agent, host, extra_options=()):
     :returns: gRPC secure channel with credentials attached.
     """
     target = '%s:%d' % (host, http_client.HTTPS_PORT)
-    http_request = google_auth_httplib2.Request(http=httplib2.Http())
+    # http_request = google_auth_httplib2.Request(http=httplib2.Http())
+    http_request = urllib3.PoolManager().request
 
     user_agent_option = ('grpc.primary_user_agent', user_agent)
     options = (user_agent_option,) + extra_options

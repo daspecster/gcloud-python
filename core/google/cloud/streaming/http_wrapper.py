@@ -28,6 +28,7 @@ import httplib2
 import six
 from six.moves import http_client
 from six.moves.urllib import parse
+import urllib3
 
 from google.cloud.streaming.exceptions import BadStatusCodeError
 from google.cloud.streaming.exceptions import RequestError

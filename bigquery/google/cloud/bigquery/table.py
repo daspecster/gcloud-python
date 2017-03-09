@@ -18,8 +18,8 @@ import datetime
 import json
 import os
 
-import httplib2
 import six
+import urllib3
 
 from google.cloud._helpers import _datetime_from_microseconds
 from google.cloud._helpers import _microseconds_from_datetime
@@ -427,7 +427,7 @@ class Table(object):
     def _set_properties(self, api_response):
         """Update properties from resource in body of ``api_response``
 
-        :type api_response: httplib2.Response
+        :type api_response: urllib3.HTTPResponse
         :param api_response: response returned from an API call
         """
         self._properties.clear()
@@ -782,7 +782,7 @@ class Table(object):
         info = http_response.info
         status = int(info['status'])
         if not 200 <= status < 300:
-            faux_response = httplib2.Response({'status': status})
+            faux_response = urllib3.response.HTTPResponse(status=status)
             raise make_exception(faux_response, http_response.content,
                                  error_info=request.url)
 
@@ -961,7 +961,7 @@ class Table(object):
         try:
             upload.initialize_upload(request, connection.http)
         except HttpError as err_response:
-            faux_response = httplib2.Response(err_response.response)
+            faux_response = urllib3.HTTPResponse(body=err_response.response)
             raise make_exception(faux_response, err_response.content,
                                  error_info=request.url)
 

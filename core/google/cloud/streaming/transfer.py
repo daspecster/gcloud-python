@@ -21,9 +21,9 @@ import email.mime.nonmultipart as mime_nonmultipart
 import mimetypes
 import os
 
-import httplib2
 import six
 from six.moves import http_client
+import urllib3
 
 from google.cloud._helpers import _to_bytes
 from google.cloud.streaming.buffered_stream import BufferedStream
@@ -183,7 +183,8 @@ class _Transfer(object):
         """
         self._ensure_uninitialized()
         if self.http is None:
-            self._http = http or httplib2.Http()
+            # self._http = http or httplib2.Http()
+            self._http = http or urllib3.PoolManager()
         self._url = url
 
     @property

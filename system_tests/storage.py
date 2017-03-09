@@ -17,8 +17,8 @@ import tempfile
 import time
 import unittest
 
-import httplib2
 import six
+import urllib3
 
 from google.cloud import exceptions
 from google.cloud import storage
@@ -28,7 +28,7 @@ from system_test_utils import unique_resource_id
 from retry import RetryErrors
 
 
-HTTP = httplib2.Http()
+HTTP = urllib3.PoolManager()
 
 
 def _bad_copy(bad_request):
@@ -404,9 +404,9 @@ class TestStorageSignURLs(TestStorageFiles):
         signed_url = blob.generate_signed_url(expiration, method='GET',
                                               client=Config.CLIENT)
 
-        response, content = HTTP.request(signed_url, method='GET')
+        response = HTTP.request('GET', signed_url)
         self.assertEqual(response.status, 200)
-        self.assertEqual(content, self.LOCAL_FILE)
+        self.assertEqual(response.data, self.LOCAL_FILE)
 
     def test_create_signed_delete_url(self):
         blob = self.bucket.blob('LogoToSign.jpg')
@@ -415,9 +415,9 @@ class TestStorageSignURLs(TestStorageFiles):
                                                      method='DELETE',
                                                      client=Config.CLIENT)
 
-        response, content = HTTP.request(signed_delete_url, method='DELETE')
+        response = HTTP.request('DELETE', signed_delete_url)
         self.assertEqual(response.status, 204)
-        self.assertEqual(content, b'')
+        self.assertEqual(response.data, b'')
 
         # Check that the blob has actually been deleted.
         self.assertFalse(blob.exists())

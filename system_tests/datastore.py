@@ -18,8 +18,8 @@ import pkgutil
 import tempfile
 import unittest
 
-import httplib2
 import six
+import urllib3
 
 from google.cloud._helpers import UTC
 from google.cloud import datastore
@@ -77,11 +77,11 @@ def setUpModule():
         Config.CLIENT = datastore.Client(namespace=test_namespace)
     else:
         credentials = EmulatorCreds()
-        http = httplib2.Http()  # Un-authorized.
+        http = urllib3.PoolManager()
         Config.CLIENT = datastore.Client(project=emulator_dataset,
                                          namespace=test_namespace,
                                          credentials=credentials,
-                                         http=http)
+                                         http=http.request)
 
 
 def tearDownModule():

@@ -51,6 +51,7 @@ SETUP_BASE = {
 
 REQUIREMENTS = [
     'httplib2 >= 0.9.1',
+    'urllib3[secure] >= 1.20',
     'googleapis-common-protos >= 1.3.4',
     'protobuf >= 3.0.0',
     'google-auth >= 0.4.0, < 2.0.0dev',
